@@ -1,0 +1,25 @@
+.DS_Store
+.env
+.idea/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.vscode/
+__pycache__/
+*.log
+*.py[cod]
+
+# Local data and generated artifacts
+data/
+model/
+models/
+uploads/*
+!uploads/.gitkeep
+pkl_files/*.pkl
+pkl_files/categorical_columns
+pkl_files/date_columns
+pkl_files/numerical_columns
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+

@@ -9,12 +9,14 @@ from datetime import datetime
 from datatable import f, min, max
 
 import os
+import shutil
+import tempfile
 from flask import Flask, flash,jsonify, request, redirect, render_template
 from werkzeug.utils import secure_filename
 
 app=Flask(__name__)
 
-app.secret_key = "secret key"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or os.urandom(32)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Get current path
@@ -29,7 +31,7 @@ if not os.path.isdir(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Allowed extension you can set your own
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = {'csv', 'txt'}
 
 
 def allowed_file(filename):
@@ -50,11 +52,19 @@ def upload_file():
             return redirect(request.url)
 
         files = request.files.getlist('files[]')
+        request_dir = tempfile.mkdtemp(prefix="request-", dir=app.config['UPLOAD_FOLDER'])
+        accepted_files = 0
 
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(request_dir, filename))
+                accepted_files += 1
+
+        if accepted_files != 3:
+            shutil.rmtree(request_dir, ignore_errors=True)
+            flash('Upload exactly three CSV or TXT feature files')
+            return redirect(request.url)
 
         #flash('File(s) successfully uploaded')
         def function1(input_file): #This function takes an input where features are separated by comma in the same order as training data given
@@ -233,7 +243,9 @@ def upload_file():
         
                 return df_
                 
-            files = os.listdir(input_file)
+            files = sorted(os.listdir(input_file))
+            if len(files) != 3:
+                raise ValueError('Expected exactly three feature files')
             
             input_file_cat = open(input_file+'/'+files[0],"r")
             input_cat = list(input_file_cat)
@@ -281,8 +293,11 @@ def upload_file():
                 output = 'Defective'
             return output
         
-        output = function1('uploads')
-        return jsonify({'prediction': output})
+        try:
+            output = function1(request_dir)
+            return jsonify({'prediction': output})
+        finally:
+            shutil.rmtree(request_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
