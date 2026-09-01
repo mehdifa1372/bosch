@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bosch Failure Prediction Demo</title>
+    <style>
+      :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+      body { margin: 0; background: #0b1020; color: #e8eefc; }
+      main { max-width: 720px; margin: 10vh auto; padding: 2rem; }
+      section { background: #151d33; border: 1px solid #2a385d; border-radius: 16px; padding: 2rem; box-shadow: 0 20px 60px #0006; }
+      h1 { margin-top: 0; font-size: clamp(2rem, 5vw, 3.2rem); }
+      p { color: #b8c4df; line-height: 1.6; }
+      input { display: block; width: 100%; box-sizing: border-box; padding: 1rem; border: 1px dashed #7186b8; border-radius: 10px; }
+      button { margin-top: 1rem; padding: .8rem 1.2rem; border: 0; border-radius: 9px; background: #65d1ff; color: #07101f; font-weight: 700; cursor: pointer; }
+      small { display: block; margin-top: 1rem; color: #91a0c0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Production-line failure prediction</h1>
+        <p>Portfolio demonstration of an imbalanced-classification pipeline built from numerical, categorical, and station timing measurements.</p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}<p role="alert">{{ messages|join(' ') }}</p>{% endif %}
+        {% endwith %}
+        <form method="post" enctype="multipart/form-data">
+          <label for="files">Select categorical, date, and numerical input files</label>
+          <input id="files" name="files[]" type="file" accept=".csv,.txt" multiple required>
+          <button type="submit">Run prediction</button>
+        </form>
+        <small>Research prototype. Do not upload sensitive or production data.</small>
+      </section>
+    </main>
+  </body>
+</html>
+
